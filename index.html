@@ -13,6 +13,7 @@
   <!-- iOS PWA Support -->
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <!-- Estedad Font -->
@@ -27,6 +28,8 @@
 </head>
 
 <body class="p-0">
+
+  <!-- MAIN APP CONTAINER -->
   <div class="max-w-md mx-auto min-h-screen flex flex-col">
 
     <!-- Header -->
@@ -42,10 +45,96 @@
       </div>
     </div>
 
-    <!-- Your existing UI structure goes here -->
-    <!-- Tabs, game panel, stats panel, history panel, bottom sheets, overlays -->
-    <!-- Keep IDs consistent with app.js -->
+    <!-- Tabs -->
+    <div class="flex justify-around text-white text-sm mb-4">
+      <button id="tab-game" class="tab-active pb-2" onclick="showTab('game')">بازی</button>
+      <button id="tab-stats" class="tab-inactive pb-2" onclick="showTab('stats')">آمار</button>
+      <button id="tab-history" class="tab-inactive pb-2" onclick="showTab('history')">تاریخچه</button>
+    </div>
 
+    <!-- GAME PANEL -->
+    <div id="panel-game" class="px-4">
+
+      <!-- Place Selector -->
+      <div class="glass mb-4">
+        <label class="text-white text-sm mb-1 block">محل بازی</label>
+        <button onclick="openPlaceSheet()"
+                class="w-full bg-white/20 text-white py-2 rounded-lg touch-btn">
+          انتخاب محل
+        </button>
+        <p id="selected-place" class="text-white text-xs mt-2 opacity-80"></p>
+      </div>
+
+      <!-- Team A -->
+      <div class="glass mb-4">
+        <h3 class="text-white font-bold mb-2">تیم A</h3>
+
+        <button onclick="openPlayerSheet('A')"
+                class="w-full bg-white/20 text-white py-2 rounded-lg touch-btn mb-3">
+          انتخاب بازیکنان
+        </button>
+
+        <input id="scoreA" type="number" placeholder="امتیاز"
+               class="score-input w-full bg-white/20 text-white py-2 rounded-lg touch-btn">
+      </div>
+
+      <!-- Team B -->
+      <div class="glass mb-4">
+        <h3 class="text-white font-bold mb-2">تیم B</h3>
+
+        <button onclick="openPlayerSheet('B')"
+                class="w-full bg-white/20 text-white py-2 rounded-lg touch-btn mb-3">
+          انتخاب بازیکنان
+        </button>
+
+        <input id="scoreB" type="number" placeholder="امتیاز"
+               class="score-input w-full bg-white/20 text-white py-2 rounded-lg touch-btn">
+      </div>
+
+      <!-- Save Game -->
+      <button onclick="saveGame()"
+              class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl touch-btn font-bold">
+        ثبت نتیجه
+      </button>
+    </div>
+
+    <!-- STATS PANEL -->
+    <div id="panel-stats" class="hidden px-4 text-white">
+      <div class="glass p-4 text-center">
+        <p class="opacity-80">بخش آمار به‌زودی اضافه می‌شود.</p>
+      </div>
+    </div>
+
+    <!-- HISTORY PANEL -->
+    <div id="panel-history" class="hidden px-4">
+      <div id="history-list"></div>
+    </div>
+
+  </div>
+
+  <!-- OVERLAY -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- PLAYER SELECTION SHEET -->
+  <div id="player-sheet" class="bottom-sheet">
+    <h3 class="text-lg font-bold mb-3">انتخاب بازیکنان</h3>
+    <div id="player-list" class="mb-4"></div>
+
+    <button onclick="closePlayerSheet()"
+            class="w-full bg-gray-600 text-white py-2 rounded-lg touch-btn">
+      بستن
+    </button>
+  </div>
+
+  <!-- PLACE SELECTION SHEET -->
+  <div id="place-sheet" class="bottom-sheet">
+    <h3 class="text-lg font-bold mb-3">انتخاب محل</h3>
+    <div id="place-list" class="mb-4"></div>
+
+    <button onclick="closePlaceSheet()"
+            class="w-full bg-gray-600 text-white py-2 rounded-lg touch-btn">
+      بستن
+    </button>
   </div>
 
   <!-- App Logic -->
@@ -57,5 +146,6 @@
       navigator.serviceWorker.register("/Jubail-Penak/service-worker.js");
     }
   </script>
+
 </body>
 </html>
