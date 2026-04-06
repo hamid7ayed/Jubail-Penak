@@ -20,7 +20,7 @@ const UI_TEXT = {
 };
 
 // ===============================
-// STATE & STORAGE HELPERS
+// STORAGE HELPERS
 // ===============================
 const STORAGE_KEYS = {
   players: "penak_players",
@@ -42,7 +42,7 @@ function saveJSON(key, value) {
 }
 
 // ===============================
-// TOAST / NOTIFICATION
+// TOAST NOTIFICATION
 // ===============================
 let toastTimeout = null;
 
@@ -104,7 +104,7 @@ async function processSyncQueue() {
       });
     } catch (err) {
       showNotification(UI_TEXT.notifications.syncError, "error");
-      return; // stop, retry later
+      return;
     }
   }
 
@@ -125,41 +125,21 @@ function updateSyncStatus() {
 function retrySyncNow() {
   processSyncQueue();
 }
+window.retrySyncNow = retrySyncNow;
 
 // ===============================
-// PLAYERS & PLACES (CONFIG SYNC)
+// PLAYERS & PLACES
 // ===============================
 function getPlayers() {
   return loadJSON(STORAGE_KEYS.players, []);
-}
-
-function savePlayers(players) {
-  saveJSON(STORAGE_KEYS.players, players);
-  syncConfig();
 }
 
 function getPlaces() {
   return loadJSON(STORAGE_KEYS.places, []);
 }
 
-function savePlaces(places) {
-  saveJSON(STORAGE_KEYS.places, places);
-  syncConfig();
-}
-
-function syncConfig() {
-  const players = getPlayers();
-  const locations = getPlaces();
-
-  addToSyncQueue({
-    type: "config",
-    players,
-    locations
-  });
-}
-
 // ===============================
-// HISTORY (LOCAL + REMOTE)
+// HISTORY
 // ===============================
 function getLocalHistory() {
   return loadJSON(STORAGE_KEYS.history, []);
@@ -177,9 +157,7 @@ async function fetchRemoteHistory() {
       saveLocalHistory(data);
       renderHistory(data);
     }
-  } catch (err) {
-    // ignore, offline or error
-  }
+  } catch {}
 }
 
 function addGameToHistory(game) {
@@ -190,29 +168,15 @@ function addGameToHistory(game) {
 }
 
 // ===============================
-// GAME SAVE
+// SAVE GAME
 // ===============================
-// Call this when a game finishes
-function saveFinishedGame({ date, time, place, teamA, teamB, winner }) {
-  const payload = {
-    type: "game",
-    date,
-    time,
-    place,
-    teamA,
-    teamB,
-    winner
-  };
-
-  // local history
-  addGameToHistory(payload);
-
-  // queue for sync
-  addToSyncQueue(payload);
+function saveFinishedGame(game) {
+  addGameToHistory(game);
+  addToSyncQueue(game);
 }
 
 // ===============================
-// RENDERING (HOOK INTO YOUR UI)
+// RENDER HISTORY
 // ===============================
 function renderHistory(history) {
   const container = document.getElementById("history-list");
@@ -228,19 +192,19 @@ function renderHistory(history) {
 
   history.forEach(game => {
     const div = document.createElement("div");
-    div.className = "history-item text-white text-sm";
+    div.className = "glass p-3 mb-3 text-white text-sm";
 
     div.innerHTML = `
       <div class="flex justify-between mb-1">
-        <span>${game.date || ""} - ${game.time || ""}</span>
-        <span>${game.place || ""}</span>
+        <span>${game.date} - ${game.time}</span>
+        <span>${game.place}</span>
       </div>
       <div class="flex justify-between mt-1">
-        <span>تیم A: ${game.teamA?.players || ""} (${game.teamA?.score ?? 0})</span>
-        <span>تیم B: ${game.teamB?.players || ""} (${game.teamB?.score ?? 0})</span>
+        <span>تیم A: ${game.teamA.players} (${game.teamA.score})</span>
+        <span>تیم B: ${game.teamB.players} (${game.teamB.score})</span>
       </div>
       <div class="mt-1">
-        برنده: <strong>${game.winner || "-"}</strong>
+        برنده: <strong>${game.winner}</strong>
       </div>
     `;
     container.appendChild(div);
@@ -248,8 +212,182 @@ function renderHistory(history) {
 }
 
 // ===============================
-// INIT UI
+// UI STATE
 // ===============================
+let currentTeam = null;
+
+// ===============================
+// TAB SWITCHING
+// ===============================
+function showTab(tab) {
+  document.getElementById("panel-game").classList.add("hidden");
+  document.getElementById("panel-stats").classList.add("hidden");
+  document.getElementById("panel-history").classList.add("hidden");
+
+  document.getElementById(`panel-${tab}`).classList.remove("hidden");
+
+  document.getElementById("tab-game").classList.remove("tab-active");
+  document.getElementById("tab-stats").classList.remove("tab-active");
+  document.getElementById("tab-history").classList.remove("tab-active");
+
+  document.getElementById("tab-game").classList.add("tab-inactive");
+  document.getElementById("tab-stats").classList.add("tab-inactive");
+  document.getElementById("tab-history").classList.add("tab-inactive");
+
+  document.getElementById(`tab-${tab}`).classList.add("tab-active");
+  document.getElementById(`tab-${tab}`).classList.remove("tab-inactive");
+
+  if (tab === "history") {
+    renderHistory(getLocalHistory());
+  }
+}
+window.showTab = showTab;
+
+// ===============================
+// BOTTOM SHEETS
+// ===============================
+function openSheet(id) {
+  document.getElementById("overlay").classList.add("show");
+  document.getElementById(id).classList.add("show");
+}
+
+function closeSheet(id) {
+  document.getElementById("overlay").classList.remove("show");
+  document.getElementById(id).classList.remove("show");
+}
+
+// ===============================
+// PLAYER SHEET
+// ===============================
+function openPlayerSheet(team) {
+  currentTeam = team;
+
+  const players = getPlayers();
+  const list = document.getElementById("player-list");
+  list.innerHTML = "";
+
+  players.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "w-full bg-white/10 text-white py-2 rounded-lg mb-2 touch-btn";
+    btn.textContent = p;
+    btn.onclick = () => selectPlayer(p);
+    list.appendChild(btn);
+  });
+
+  openSheet("player-sheet");
+}
+
+function closePlayerSheet() {
+  closeSheet("player-sheet");
+}
+
+function selectPlayer(playerName) {
+  const el = document.getElementById(`selected-${currentTeam}`);
+  if (el) el.textContent = playerName;
+
+  closePlayerSheet();
+}
+
+window.openPlayerSheet = openPlayerSheet;
+window.closePlayerSheet = closePlayerSheet;
+
+// ===============================
+// PLACE SHEET
+// ===============================
+function openPlaceSheet() {
+  const places = getPlaces();
+  const list = document.getElementById("place-list");
+  list.innerHTML = "";
+
+  places.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "w-full bg-white/10 text-white py-2 rounded-lg mb-2 touch-btn";
+    btn.textContent = p;
+    btn.onclick = () => selectPlace(p);
+    list.appendChild(btn);
+  });
+
+  openSheet("place-sheet");
+}
+
+function closePlaceSheet() {
+  closeSheet("place-sheet");
+}
+
+function selectPlace(placeName) {
+  const el = document.getElementById("selected-place");
+  if (el) el.textContent = placeName;
+
+  closePlaceSheet();
+}
+
+window.openPlaceSheet = openPlaceSheet;
+window.closePlaceSheet = closePlaceSheet;
+
+// ===============================
+// SAVE GAME
+// ===============================
+function saveGame() {
+  const place = document.getElementById("selected-place").textContent.trim();
+  const scoreA = parseInt(document.getElementById("scoreA").value || 0);
+  const scoreB = parseInt(document.getElementById("scoreB").value || 0);
+
+  const teamAPlayers = document.getElementById("selected-A")?.textContent || "";
+  const teamBPlayers = document.getElementById("selected-B")?.textContent || "";
+
+  if (!place || !teamAPlayers || !teamBPlayers) {
+    showNotification("لطفاً محل و بازیکنان را انتخاب کنید.", "error");
+    return;
+  }
+
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10).replace(/-/g, "/");
+  const time = now.toTimeString().slice(0, 5);
+
+  const winner =
+    scoreA > scoreB ? "تیم A" :
+    scoreB > scoreA ? "تیم B" :
+    "مساوی";
+
+  saveFinishedGame({
+    date,
+    time,
+    place,
+    teamA: { players: teamAPlayers, score: scoreA },
+    teamB: { players: teamBPlayers, score: scoreB },
+    winner
+  });
+
+  showNotification("بازی با موفقیت ثبت شد.", "success");
+
+  document.getElementById("scoreA").value = "";
+  document.getElementById("scoreB").value = "";
+}
+
+window.saveGame = saveGame;
+
+// ===============================
+// OVERLAY CLICK CLOSE
+// ===============================
+document.getElementById("overlay").addEventListener("click", () => {
+  closePlayerSheet();
+  closePlaceSheet();
+});
+
+// ===============================
+// INIT
+// ===============================
+window.addEventListener("load", () => {
+  initUITexts();
+  updateSyncStatus();
+  renderHistory(getLocalHistory());
+
+  if (navigator.onLine) {
+    processSyncQueue();
+    fetchRemoteHistory();
+  }
+});
+
 function initUITexts() {
   const titleEl = document.getElementById("app-title");
   const subtitleEl = document.getElementById("app-subtitle");
@@ -257,44 +395,3 @@ function initUITexts() {
   if (titleEl) titleEl.textContent = "🃏 " + UI_TEXT.app.title;
   if (subtitleEl) subtitleEl.textContent = UI_TEXT.app.subtitle;
 }
-
-// ===============================
-// ON LOAD
-// ===============================
-window.addEventListener("load", () => {
-  initUITexts();
-  updateSyncStatus();
-
-  // render local history immediately
-  renderHistory(getLocalHistory());
-
-  // try to refresh from server if online
-  if (navigator.onLine) {
-    processSyncQueue();
-    fetchRemoteHistory();
-  }
-});
-
-// ===============================
-// EXPORTS FOR INLINE HANDLERS (OPTIONAL)
-// ===============================
-// Example usage from HTML:
-// <button onclick="debugAddFakeGame()">تست</button>
-function debugAddFakeGame() {
-  const now = new Date();
-  const date = now.toISOString().slice(0, 10).replace(/-/g, "/");
-  const time = now.toTimeString().slice(0, 5);
-
-  saveFinishedGame({
-    date,
-    time,
-    place: "محل تست",
-    teamA: { players: "الف۱، الف۲", score: 102 },
-    teamB: { players: "ب۱، ب۲", score: 98 },
-    winner: "تیم الف"
-  });
-}
-
-window.retrySyncNow = retrySyncNow;
-window.debugAddFakeGame = debugAddFakeGame;
-// You can also expose other functions here as needed
