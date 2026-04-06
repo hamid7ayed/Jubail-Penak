@@ -1,0 +1,186 @@
+/* -----------------------------------------
+   GLOBAL RESET & TOUCH OPTIMIZATION
+----------------------------------------- */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+body {
+  font-family: 'Estedad FD', 'Vazirmatn', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  overscroll-behavior: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* -----------------------------------------
+   GLASS EFFECT CONTAINERS
+----------------------------------------- */
+.glass {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* -----------------------------------------
+   BUTTONS
+----------------------------------------- */
+.touch-btn {
+  transition: all 0.15s ease;
+}
+
+.touch-btn:active {
+  transform: scale(0.96);
+}
+
+/* -----------------------------------------
+   INPUTS
+----------------------------------------- */
+input, select {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  width: 100%;
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* -----------------------------------------
+   SCORE INPUTS
+----------------------------------------- */
+.score-input {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* -----------------------------------------
+   WINNER GLOW EFFECT
+----------------------------------------- */
+.winner-glow {
+  animation: glowPulse 1.6s infinite ease-in-out;
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 0px rgba(255, 255, 255, 0.0);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(255, 255, 255, 0.0);
+  }
+}
+
+/* -----------------------------------------
+   BOTTOM SHEET
+----------------------------------------- */
+.bottom-sheet {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  transition: bottom 0.35s ease;
+  z-index: 999;
+}
+
+.bottom-sheet.show {
+  bottom: 0;
+}
+
+/* -----------------------------------------
+   OVERLAY
+----------------------------------------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: none;
+  z-index: 998;
+}
+
+.overlay.show {
+  display: block;
+}
+
+/* -----------------------------------------
+   HISTORY LIST
+----------------------------------------- */
+.history-item {
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+/* -----------------------------------------
+   PLAYER TAGS
+----------------------------------------- */
+.player-tag {
+  background: rgba(255,255,255,0.25);
+  padding: 6px 12px;
+  border-radius: 12px;
+  margin: 4px;
+  display: inline-block;
+  font-size: 14px;
+  color: #fff;
+}
+
+/* -----------------------------------------
+   TAB BAR
+----------------------------------------- */
+.tab-active {
+  color: #fff;
+  font-weight: bold;
+  border-bottom: 3px solid #fff;
+}
+
+.tab-inactive {
+  color: rgba(255,255,255,0.7);
+}
+
+/* -----------------------------------------
+   NOTIFICATION TOAST
+----------------------------------------- */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+}
