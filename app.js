@@ -3,6 +3,16 @@
 // ===============================
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwA2PgUDBa0d8lmGR_Wnk2NeaQlHLGSxOpKWnK11NL5i8shPTF-7TIMTGDvgyJEQ3ZU/exec";
+// ===============================
+// DEFAULT DATA (only runs if empty)
+// ===============================
+if (!localStorage.getItem("penak_players")) {
+  saveJSON("penak_players", ["حمید", "علی", "سعید", "مهدی"]);
+}
+
+if (!localStorage.getItem("penak_places")) {
+  saveJSON("penak_places", ["جُبَیل", "راس تنوره", "الدمام"]);
+}
 
 // ===============================
 // UI TEXT
