@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>پینک</title>
+
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- iOS PWA Support -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Estedad Font -->
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/estedad-font@v0.4.1/dist/Estedad-FD.css"
+        rel="stylesheet" type="text/css" />
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="p-0">
+  <div class="max-w-md mx-auto min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <div class="text-center py-6 px-4">
+      <h1 id="app-title" class="text-4xl font-bold text-white mb-1"></h1>
+      <p id="app-subtitle" class="text-white text-sm opacity-90"></p>
+
+      <div id="sync-status" class="mt-2 hidden">
+        <button onclick="retrySyncNow()"
+                class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded-full">
+          ⏳ در انتظار همگام‌سازی - کلیک برای تلاش مجدد
+        </button>
+      </div>
+    </div>
+
+    <!-- Your existing UI structure goes here -->
+    <!-- Tabs, game panel, stats panel, history panel, bottom sheets, overlays -->
+    <!-- Keep IDs consistent with app.js -->
+
+  </div>
+
+  <!-- App Logic -->
+  <script src="app.js"></script>
+
+  <!-- Register Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/Jubail-Penak/service-worker.js");
+    }
+  </script>
+</body>
+</html>
